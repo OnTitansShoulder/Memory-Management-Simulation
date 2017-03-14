@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdio>
 #include <string>
+#include <cstring>
 using namespace std;
 
 const int BEST_FIT = 1;
@@ -10,7 +11,7 @@ struct Page{
   string name;
   int size;
   Page* next;
-}
+};
 
 void initialize(Page* freeHead, Page* usedHead);
 void printMenu();
@@ -102,6 +103,7 @@ void addPage(Page* freeHead, Page* usedHead, int memoryManagementMethod){
     } else {
       addWorst(freeHead, usedHead, programName, size);
     }
+    cout << "Success! " << size << " page(s) are used." << endl;
 }
 
 void addBest(Page* freeHead, Page* usedHead, string programName, int size){
@@ -113,7 +115,7 @@ void addBest(Page* freeHead, Page* usedHead, string programName, int size){
   while(freeCurrent != NULL){
     if(freeCurrent->name.compare("Free") == 0){
       if(freeCurrent->size < min && freeCurrent->size >= size){
-        max = freeCurrent->size;
+        min = freeCurrent->size;
         bestCurrent = freeCurrent;
         bestPrevious = freePrevious;
         usedSkipped = used;
@@ -121,6 +123,8 @@ void addBest(Page* freeHead, Page* usedHead, string programName, int size){
     } else{
       used++;
     }
+    freePrevious = freeCurrent;
+    freeCurrent = freeCurrent->next;
   }
   if(min == 33){
     cout << "Program does not fit." <<endl;
@@ -141,6 +145,7 @@ void addBest(Page* freeHead, Page* usedHead, string programName, int size){
   while(usedSkipped > 0){
     previous = current;
     current = current->next;
+    usedSkipped--;
   }
   Page* newUsedPage = new Page;
   newUsedPage->name = programName;
@@ -166,6 +171,8 @@ void addWorst(Page* freeHead, Page* usedHead, string programName, int size){
     } else{
       used++;
     }
+    freePrevious = freeCurrent;
+    freeCurrent = freeCurrent->next;
   }
   if(max < size){
     cout << "Program does not fit." <<endl;
@@ -186,6 +193,7 @@ void addWorst(Page* freeHead, Page* usedHead, string programName, int size){
   while(usedSkipped > 0){
     previous = current;
     current = current->next;
+    usedSkipped--;
   }
   Page* newUsedPage = new Page;
   newUsedPage->name = programName;
@@ -208,6 +216,8 @@ void killPage(Page* freeHead, Page* usedHead){
       break;
     }
     counter++;
+    previous = current;
+    current = current->next;
   }
   if(!found){
     cout << "Program not found." << endl;
@@ -260,23 +270,23 @@ void printMemory(Page* freeHead, Page* usedHead){
   int counter = 0;
   int pageSize = 0;
   string currentName;
-  Page* freeCurrent = freeHead->next, usedCurrent = usedHead->next;
+  Page *freeCurrent = freeHead->next, *usedCurrent = usedHead->next;
   while(counter < 32){
     if(freeCurrent->name.compare("Free") == 0){
       currentName = "Free";
       pageSize = freeCurrent->size;
-      freeCurrent = freeCurrent->next;
     } else{
       currentName = usedCurrent->name;
       pageSize = usedCurrent->size;
       usedCurrent = usedCurrent->next;
     }
     while(pageSize>0){
-      printf("%-6s ", currentName);
+      printf("%-6s ", currentName.c_str());
       counter++;
       if(counter % 8 == 0)
         cout << endl;
       pageSize--;
     }
+    freeCurrent = freeCurrent->next;
   }
 }
